@@ -1,0 +1,15 @@
+./data/
+./napucco/data/
+**/data/*
+./tmpfigures/
+./log/
+*.mat
+*.jpg
+*.jpeg
+*.asv
+tmp*
+*tmp*
+*.DS_Store
+*.png
+*.fig
+*.tar.gz
