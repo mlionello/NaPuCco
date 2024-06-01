@@ -1,5 +1,5 @@
 function folders = conf_folders(nb_infeat, ...
-    nb_timesteps, r2_target, grt_dist, vox_variability, nb_vx)
+    nb_timesteps, r2_target, grt_dist, vox_variability, nb_vx, rootdir)
     if isempty(r2_target) || any(isnan(r2_target))
         r2_target = ["nan", "nan"];
     end
@@ -13,20 +13,20 @@ function folders = conf_folders(nb_infeat, ...
         r2_id = r2_id + vox_var_suffix;
     end
 
-    HOMEPATH = 'data';
+    HOMEPATH = fullfile( rootdir,  'data');
     HOMEPATH = fullfile( HOMEPATH,  folderID);
     SUBJDIR = fullfile(HOMEPATH, 'subjects');
 
     if grt_dist == 0; SUBJDIREFF = fullfile(SUBJDIR, r2_id + "_" + exp_id);
     else; SUBJDIREFF = fullfile(SUBJDIR, 'grtdst_'  + vox_var_suffix + exp_id); end
-    SUBJDIRNULL = fullfile(SUBJDIR,  "nulldst_" + exp_id);
+    SUBJDIRNONEFF = fullfile(SUBJDIR,  "noneffdst_" + exp_id);
     RESULTS = fullfile(HOMEPATH, 'results');
     LOGS = fullfile(HOMEPATH, 'logs');
     FIGURES = fullfile(HOMEPATH, 'figures');
 
     if ~ isfolder(HOMEPATH); mkdir(HOMEPATH); end
     if ~ isfolder(SUBJDIR); mkdir(SUBJDIR); end
-    if nb_vx(2) == 0; SUBJDIRNULL="none"; else; mkdir(SUBJDIRNULL); end
+    if nb_vx(2) == 0; SUBJDIRNONEFF="none"; else; mkdir(SUBJDIRNONEFF); end
     if nb_vx(1) == 0; SUBJDIREFF="none"; else; mkdir(SUBJDIREFF); end
     if ~ isfolder(FIGURES); mkdir(FIGURES); end
     if ~ isfolder(LOGS); mkdir(LOGS); end
@@ -38,6 +38,6 @@ function folders = conf_folders(nb_infeat, ...
         "HOMEPATH", HOMEPATH, ...
         "SUBJDIR", SUBJDIR, ...
         "SUBJDIREFF", SUBJDIREFF, ...
-        "SUBJDIRNULL", SUBJDIRNULL, ...
+        "SUBJDIRNONEFF", SUBJDIRNONEFF, ...
         "LOGS", LOGS, "RESULTS", RESULTS, "FIGURES", FIGURES);
 end

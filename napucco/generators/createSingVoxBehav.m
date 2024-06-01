@@ -27,10 +27,6 @@ function [y, B, R2_current, stats] = createSingVoxBehav( ...
         for i = 1: opts.n_iter
             
             y = (vx_std_range .* randn(n_timepoints, 1)) + X*betas;
-
-%             [B, ~, ~, ~, STATS] = regress(y, X);
-%             R2_current = STATS(1);
-
             B = X\y;
             yhat = X*B;
             ssres = sum((y-yhat).^2);

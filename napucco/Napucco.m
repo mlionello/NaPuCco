@@ -8,13 +8,13 @@ classdef Napucco
     %   Usage:
     %       napuccoObj = Napucco(nb_infeat, nb_timepoints)
     %       napuccoObj.fetch_volumes(folders)
-    %       napuccoObj.generate_volumes(nb_volumes, opts)
+    %       napuccoObj.volumes_creator(nb_volumes, opts)
     %       napuccoObj.run_experiments(correction, r2, nb_subj, nb_rep, opts)
     %       Napucco.compute_result()
     %
     %  Examples:
     %       gli_npc = Napucco(nb_infeat, nb_timepoints)
-    %       gli_npc = gli_npc.generate_volumes(20, 'nb_effvx', 27, 'nb_noneffvx', 1000, 'r2_target', [0.07, 0.02]);
+    %       gli_npc = gli_npc.volumes_creator(20, 'nb_effvx', 27, 'nb_noneffvx', 1000, 'r2_target', [0.07, 0.02]);
     %       gli_npc = gli_npc.gli_npc.run_experiments('both', [])
     %       gli_npc.compute_result()
     %
@@ -30,6 +30,9 @@ classdef Napucco
     methods
         % Constructor
         function obj = Napucco(nb_infeat, nb_timepoints)
+            addpath("./core_functions/")
+            addpath("./utils/")
+            addpath("./generators/")
             % Napucco - Constructor for the Napucco class.
             %
             %   obj = Napucco(nb_infeat, nb_timepoints)
@@ -68,10 +71,10 @@ classdef Napucco
         end
 
         % Method to generate volumes
-        function obj = generate_volumes(obj, nb_volumes, opts)
-            % generate_volumes - Generates volumes based on specified options.
+        function obj = volumes_creator(obj, nb_volumes, opts)
+            % volumes_creator - Generates volumes based on specified options.
             %
-            %   obj = generate_volumes(obj, nb_volumes, opts)
+            %   obj = volumes_creator(obj, nb_volumes, opts)
             %
             %   Parameters:
             %       nb_volumes (int): Number of volumes to generate.
@@ -95,14 +98,13 @@ classdef Napucco
             if ~isempty(opts.path)
                 resume_generation(opts.path);
             else
-                [hyparams, ~] = vc_correction('none', ...
-                    nb_volumes, obj.nb_infeat, opts.nb_effvx, obj.nb_timepoints, ...
-                    opts.r2_target, 'sec_cluster_voxels', opts.nb_noneffvx, ...
+                hyparams = generate_volumes(nb_volumes, obj.nb_infeat, obj.nb_timepoints, ...
+                    opts.nb_effvx, opts.r2_target, 'nb_noneffvx', opts.nb_noneffvx, ...
                     'greater_dist', opts.grtdst);
             end
 
             if opts.nb_noneffvx > 0
-                obj.folders.noneff = hyparams.folders.SUBJDIRNULL;
+                obj.folders.noneff = hyparams.folders.SUBJDIRNONEFF;
             end
             if opts.nb_effvx > 0
                 obj.folders.eff = hyparams.folders.SUBJDIREFF;
@@ -134,7 +136,7 @@ classdef Napucco
                 nb_rep int32 = 100;
                 opts.fpr int32 = 1;
                 opts.power int32 = 1;
-                opts.resfolder = nan;
+                opts.resfolder = "";
             end
 
             if isempty(obj.folders)

@@ -1,4 +1,4 @@
-function [p_fwc, H0_maxima, p_uncorrected] = get_fwc(A)
+function p_fwc = get_fwc(A, pi_thr)
     % GET_FWC compute familywise corrected values.
     %   [p_fwc, H0_maxima] = GET_FWC(A) computes the familiwise corrected
     %   values for the first row of A with respect to the other rows.
@@ -24,24 +24,24 @@ function [p_fwc, H0_maxima, p_uncorrected] = get_fwc(A)
     end
     %VoxelWise correction: for each permuation (first dim) extract the maximum 
     %value across the voxels (last dim)
-    H0_maxima = max(A(2:end, :, :), [], 3); % MAXIMUM IF FISHER
+    nonpermuted = A(1, :, :);
+    H0_maxima = max(A(2 : end, :, :), [], 3); % MAXIMUM IF FISHER
 
     %Family-wise correction: compute the family-wise corrected values for
     %each voxel in the first row with respect the maxima extracted in
     %the previous step
+    for pi = 1 : numel(pi_thr)
+        tmp = (squeeze(nonpermuted) > squeeze(prctile(H0_maxima, 100 - 100 * pi_thr(pi)))')';
+        if size(nonpermuted, 2) == 1
+            tmp = tmp';
+        end
+        p_fwc(:, :, pi) = tmp;
+    end
 
-    repH0 = repmat(H0_maxima, [1, 1, size(A, ndims(A))]);
-    mixed = cat(1, A(1, :, :), repH0); % same of doing [~, I] = sort(mixed)?
-    fwc = tiedrank( -mixed) /size( mixed, 1); % MINUS if fisher
-    p_fwc = reshape(fwc(1, :, :), size(fwc, 2), size(fwc, 3));
-    p_fwc = p_fwc';
-    % p_fwc = permute(fwc(1, :, :), [3, 2 ,1]);
+%     repH0 = repmat(H0_maxima, [1, 1, size(A, ndims(A))]);
+%     mixed = cat(1, A(1, :, :), repH0); % same of doing [~, I] = sort(mixed)?
+%     fwc = tiedrank( -mixed) /size( mixed, 1); % MINUS if fisher
+%     p_fwc = squeeze(fwc(1, :, :));
+%     p_fwc = p_fwc';
 
-    %p_uncorrected = tiedrank( -A) /size( A, 1);
-    %p_uncorrected = squeeze(p_uncorrected(1, :, :));
-    %p_uncorrected = p_uncorrected';
-
-%     tmp = squeeze(A);
-%     hist(max(tmp(2:end,:),[],2))
-%     tmp2 = sort(tmp(1,:));
 end

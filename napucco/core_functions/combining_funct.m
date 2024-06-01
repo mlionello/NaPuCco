@@ -1,14 +1,17 @@
-function combined_pvalue = combining_funct( p_values, opts)
-    %NEED TO WRITE A TEST FUNCTION
+function combined_pvalue = combining_funct( logp_values, opts)
     arguments
-        p_values (:,:,:) double
-        opts.comb_funct string = "fisher"
+        logp_values
+        opts.comb_funct = "fisher"
     end
     combined_pvalue = nan;
-    %list_of_methods = ["fisher", "tippet", "MudholkarGeorge"];
     switch opts.comb_funct
         case "fisher"
-            combined_pvalue = - 2*sum(log(p_values));
+            combined_sum = logp_values{1};
+            for k = 2:length(logp_values)
+                combined_sum = combined_sum + logp_values{k};
+            end
+            combined_pvalue = -2 * combined_sum;
+
         case "tippet"
             combined_pvalue = min(combined_pvalue);
         case "MudholkarGeorge"
