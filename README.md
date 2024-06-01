@@ -1,6 +1,6 @@
 # Estimating the statistical Power while varying the population size under NPC
 
-A project developed by Matteo Lionello and Luca Cecchetti, Social and Affective NEuroscience, IMT Lucca, Italy.
+A project developed by Matteo Lionello and Luca Cecchetti, Social and Affective Neuroscience (SANe), IMT Lucca, Italy.
 The code is part of an on-going project planned as an extensions of the work proposed by [Winkler A. M. et al. (2016). *Non-parametric combination and related permutation tests for neuroimaging*](https://doi.org/10.1002/hbm.23115), to validate non-parametric on subjects in a one-sample multi-column encoding fmri study setup, while providing a tool for non-parametric power analysis tool.
 
 ## Table of contents
