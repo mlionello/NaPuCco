@@ -1,7 +1,7 @@
 # Estimating the statistical Power while varying the population size under NPC
 
 A project developed by Matteo Lionello and Luca Cecchetti, Social and Affective Neuroscience (SANe), IMT Lucca, Italy.
-The code is part of an on-going project planned as an extensions of the work proposed by [Winkler A. M. et al. (2016). *Non-parametric combination and related permutation tests for neuroimaging*](https://doi.org/10.1002/hbm.23115), to validate non-parametric on subjects in a one-sample multi-column encoding fmri study setup, while providing a tool for non-parametric power analysis tool.
+The code is part of an on-going project planned as an extensions of the work proposed by [Winkler A. M. et al. (2016). *Non-parametric combination and related permutation tests for neuroimaging*](https://doi.org/10.1002/hbm.23115), to validate non-parametric on subjects in a one-sample multi-column encoding fmri study setup, while providing a tool for non-parametric power analysis.
 
 ## Table of contents
 1. [General workflow](#schema)
@@ -16,55 +16,50 @@ This project aims at introducing a power analysis when performing non-parametric
 The work is split in two parts:
   - subject generation
   - experiment simulation
+  - experiment-wise analysis
     
 ### GLM-Volume Generator:​
 
-      for a given design matrix X #timepoints by #features​
-      for each volume i generate voxel j such that:​
-      Given
-            {µ(R2target), std(R2target)}
-      and​ for one
-            xi ~ N(µ(R2target), std(R2target)), given y ~ N(0, std(vx))
-      get random beta until:
-            xi-coeffdet(y, GLM(y, X, beta)) < thr​
-      No R2_target constraints for non-effected volumes.​
-      For each voxel a R2 null-distribution is calculated by shuffling y.​
-      
-      Get parametric u-value via:​
-            1-Beta(R2ij | #features/2, (#timepoints - #features - 1) / 2 )​
+    Given a design matrix X #timepoints by #features​;
+    {µ(R2target), std(R2target)};
+      xi ~ N(µ(R2target), std(R2target));
+    for each volume i, generate voxel j such that:​
+    sample
+      y ~ N(0, stdVx) + U(beta1, beta2) * X,
+    random beta until: ​xi - regress(y, X) < thr​
+    (to generate non-effected volumes no “< thr“ constraints).​
+    For each voxel a R2 null-distribution is calculated via timepoint shuffling.​
+    Then, for each voxel, get the parametric u-value via:​
+      1 - Beta(R2ij | #features/2, (#timepoints - #features - 1) / 2 )​
+
 
 ### Subject Creation:​
 
       Voxelwise: concatenating 1 effected voxel with non-effected volumes (true positive); 
             only non-effected volumes (false positives);​
-      Clusterbased: 3d-wrap effected and 3d-padding with non-effected (false negative);
+      Clusterbased: 3d-wrap effected and 3d-padding with non-effected (true positive);
             3d-wrap non-effected (false positives).
 
 ### Experiment Simulation:​
       
       U-values combination via fisher:​
-            Fisher(x) = - Σi=1..N(log(u-valuessub_i))​
-      For alpha = 0.05, 0.01, 0.001​
+            Fisher(x) = - 2 Σi=1..N(log(u-valuessub_i))​
 
 #### Voxelwise:​
 
-      Null-distribution from max statistic across all permutations. 
-      The experiments passes if: p_value<alpha for the effected voxel (true positive); 
-      and any p_value < alpha for the non-effected volume (false positive).​
+    Null-distribution from max statistic across all permutations.
+    The experiments passes if: p_value < alpha for the effected voxel (true positive);
+    and any p_value < alpha for the non-effected volume (false positive).​
 
 #### Clusterbased:​
 
-      For cluster forming threshold (cft) = 0.001​
-      Get maximum cluster mass as from the binary masks:​
-      1 - chi2(comb_subs, #subjs * 2) < cft​
-      The experiments passes if: p_value < alpha for the mixed volume (true positive) 
-      and any p_value < alpha for the non-effected 3d-warp (false positive).​
+    Get maximum cluster size from those voxels passing the cluster forming threshold:​
+    1 - χ2(comb_sub, #sub * 2) < cft​
+    The experiments passes if: p_value < alpha for the mixed volume (true positive) and any p_value < alpha for the non-effected 3d-warp (false positive).​
 ​
-### Power estimation:​
-      From N experiments get percentage of 1 - true positives​
+### Power estimation
 
-### FPR estimation:​
-      From N experiments get percentage of false positives
+### FPR estimation
 
 ## Main functions: <a name="func"/>
   - **volume_generator**: function used to generate effected and non-effected volumes of voxels.
@@ -104,7 +99,7 @@ Here follows a few initial examples of how to combine the different part of the 
                                                                        # the non-effected volumes generated early will be used to pad the effected cube with 20 voxels each side
     compute_mean_res(outfolder)
     
-## Folder structure <a name="foldstruct"/>
+## Folder structure <a name="foldstruct"/> (OUTDATED)
 
     ./
     ├── Napucco.m
