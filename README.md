@@ -1,7 +1,7 @@
 # Estimating the statistical Power while varying the population size under NPC
 
 A project developed by Matteo Lionello and Luca Cecchetti, Social and Affective Neuroscience (SANe), IMT Lucca, Italy.
-The code is part of an on-going project planned as an extensions of the work proposed by [Winkler A. M. et al. (2016). *Non-parametric combination and related permutation tests for neuroimaging*](https://doi.org/10.1002/hbm.23115), to validate non-parametric on subjects in a one-sample multi-column encoding fmri study setup, while providing a tool for non-parametric power analysis.
+The code is part of an on-going project planned as an application of the work proposed by [Winkler A. M. et al. (2016). *Non-parametric combination and related permutation tests for neuroimaging*](https://doi.org/10.1002/hbm.23115) to validate non-parametric combination across participants in a one-sample multi-column encoding fmri study setup, at the same time, by providing a tool for power analysis.
 
 ## Table of contents
 1. [General workflow](#schema)
@@ -13,22 +13,22 @@ The code is part of an on-going project planned as an extensions of the work pro
 ## General workflow <a name="schema"/>
 
 This project aims at introducing a power analysis when performing non-parametric combination between subjects in an f-MRI setup.
-The work is split in two parts:
-  - subject generation
+The work is split in three parts:
+  - volumes generation
   - experiment simulation
   - experiment-wise analysis
     
 ### GLM-Volume Generator:​
 
     Given a design matrix X #timepoints by #features​;
-    {µ(R2target), std(R2target)};
-      xi ~ N(µ(R2target), std(R2target));
+    given a R2target value sampled from a given distribution:
+      xi ~ N(R2_µ, R2_std);
     for each volume i, generate voxel j such that:​
     sample
       y ~ N(0, stdVx) + U(beta1, beta2) * X,
-    random beta until: ​xi - regress(y, X) < thr​
+    by sampling random beta until: ​xi - regress(y, X) < thr​
     (to generate non-effected volumes no “< thr“ constraints).​
-    For each voxel a R2 null-distribution is calculated via timepoint shuffling.​
+    For each voxel a R2 null-distribution is calculated via timepoint-shuffling.​
     Then, for each voxel, get the parametric u-value via:​
       1 - Beta(R2ij | #features/2, (#timepoints - #features - 1) / 2 )​
 
@@ -43,18 +43,18 @@ The work is split in two parts:
 ### Experiment Simulation:​
       
       U-values combination via fisher:​
-            Fisher(x) = - 2 Σi=1..N(log(u-valuessub_i))​
+            combined_subs = - 2 * Σ{i = 1..N}(log(uvalues_subi))​
 
 #### Voxelwise:​
 
     Null-distribution from max statistic across all permutations.
-    The experiments passes if: p_value < alpha for the effected voxel (true positive);
+    Each experiment passes if: p_value < alpha for the effected voxel (true positive);
     and any p_value < alpha for the non-effected volume (false positive).​
 
 #### Clusterbased:​
 
     Get maximum cluster size from those voxels passing the cluster forming threshold:​
-    1 - χ2(comb_sub, #sub * 2) < cft​
+    1 - χ2(comb_sub | #sub * 2) < cft​
     The experiments passes if: p_value < alpha for the mixed volume (true positive) and any p_value < alpha for the non-effected 3d-warp (false positive).​
 ​
 ### Power estimation
